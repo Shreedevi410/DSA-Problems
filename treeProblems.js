@@ -7,6 +7,99 @@ class TreeNode {
   }
 }
 
+// Binary search tree with duplicate values ignored.
+class BinarySearchTree {
+  constructor() {
+    this.root = null;
+  }
+
+  insert(value) {
+    const newNode = new TreeNode(value);
+
+    if (this.root === null) {
+      this.root = newNode;
+      return this;
+    }
+
+    let current = this.root;
+    while (true) {
+      if (value === current.value) {
+        return this;
+      }
+
+      if (value < current.value) {
+        if (current.left === null) {
+          current.left = newNode;
+          return this;
+        }
+        current = current.left;
+      } else {
+        if (current.right === null) {
+          current.right = newNode;
+          return this;
+        }
+        current = current.right;
+      }
+    }
+  }
+
+  search(value) {
+    let current = this.root;
+
+    while (current !== null) {
+      if (value === current.value) {
+        return true;
+      }
+
+      current = value < current.value ? current.left : current.right;
+    }
+
+    return false;
+  }
+
+  delete(value) {
+    const removeNode = (node, target) => {
+      if (node === null) {
+        return null;
+      }
+
+      if (target < node.value) {
+        node.left = removeNode(node.left, target);
+        return node;
+      }
+
+      if (target > node.value) {
+        node.right = removeNode(node.right, target);
+        return node;
+      }
+
+      if (node.left === null) {
+        return node.right;
+      }
+
+      if (node.right === null) {
+        return node.left;
+      }
+
+      let successor = node.right;
+      while (successor.left !== null) {
+        successor = successor.left;
+      }
+
+      node.value = successor.value;
+      node.right = removeNode(node.right, successor.value);
+      return node;
+    };
+
+    this.root = removeNode(this.root, value);
+    return this;
+  }
+
+  inorder() {
+    return inorderTraversal(this.root);
+  }
+}
+
 // Visit the root, then the left and right subtrees.
 function preorderTraversal(root, values = []) {
   if (root === null) {
@@ -112,3 +205,10 @@ console.log("Level order:", levelOrderTraversal(root));
 console.log("Tree height:", treeHeight(root));
 console.log("Contains 5:", containsValue(root, 5));
 console.log("Contains 9:", containsValue(root, 9));
+
+const searchTree = new BinarySearchTree();
+[8, 3, 10, 1, 6, 14, 4, 7, 13].forEach((value) => searchTree.insert(value));
+console.log("BST inorder:", searchTree.inorder());
+console.log("BST contains 6:", searchTree.search(6));
+searchTree.delete(3);
+console.log("BST after deleting 3:", searchTree.inorder());
